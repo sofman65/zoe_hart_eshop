@@ -1,5 +1,6 @@
 import Footer from 'components/layout/footer';
-
+import CollectionPanel from 'components/hero/CollectionPanel';
+import TrendingProducts from 'components/featureditems/TrendingItems';
 export const metadata = {
   description: 'High-performance ecommerce store built with Next.js, Vercel, and Shopify.',
   openGraph: {
@@ -10,6 +11,8 @@ export const metadata = {
 export default function HomePage() {
   return (
     <>
+      <CollectionPanel />
+      <TrendingProducts />
       <Footer />
     </>
   );
