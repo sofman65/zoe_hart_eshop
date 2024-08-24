@@ -4,6 +4,12 @@ export const getMenuQuery = /* GraphQL */ `
       items {
         title
         url
+        items {  # This part assumes your schema supports nested items
+          title
+          url
+   
+          
+        }
       }
     }
   }
