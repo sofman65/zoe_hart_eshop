@@ -2,27 +2,24 @@ import Grid from 'components/grid';
 import ProductGridItems from 'components/layout/product-grid-items';
 import { getTrendingProducts } from 'lib/shopify';
 
-
 export default async function TrendingProductsPage() {
     const products = await getTrendingProducts({
         sortKey: 'BEST_SELLING',
-        reverse: false
+        reverse: false,
     });
 
-    const resultsText = products.length > 1 ? 'products' : 'product';
-
     return (
-        <>
-            <p className="mb-4">
+        <div className='container ml-5'>
+            <p className="mb-6 space-y-10 text-3xl font-bold text-left text-white">
                 {products.length === 0
                     ? 'There are no trending products available at the moment.'
-                    : `Showing ${products.length} trending ${resultsText}.`}
+                    : `Trending Now`}
             </p>
             {products.length > 0 ? (
                 <Grid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     <ProductGridItems products={products} />
                 </Grid>
             ) : null}
-        </>
+        </div>
     );
 }
