@@ -1,3 +1,4 @@
+"use server";
 import { HIDDEN_PRODUCT_TAG, SHOPIFY_GRAPHQL_API_ENDPOINT, TAGS } from 'lib/constants';
 import { isShopifyError } from 'lib/type-guards';
 import { ensureStartsWith } from 'lib/utils';
@@ -421,6 +422,37 @@ export async function getProducts({
 
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
 }
+
+
+
+export async function getTrendingProducts({
+  sortKey = 'BEST_SELLING',
+  reverse = false,
+  query = '',
+}: {
+  sortKey?: string;
+  reverse?: boolean;
+  query?: string;
+}): Promise<Product[]> {
+  const res = await shopifyFetch<ShopifyProductsOperation>({
+    query: getProductsQuery,
+    variables: { sortKey, reverse, query },
+    tags: [TAGS.products],
+  });
+
+
+
+  if (res.body.data.products) {
+    console.log("Products Data:", res.body.data.products.edges); // Log only the products data
+  }
+
+  if (!res.body.data.products) {
+    return [];
+  }
+
+  return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
+}
+
 
 // This is called from `app/api/revalidate.ts` so providers can control revalidation logic.
 export async function revalidate(req: NextRequest): Promise<NextResponse> {
