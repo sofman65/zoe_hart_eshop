@@ -1,25 +1,59 @@
-const { COMPANY_NAME, SITE_NAME } = process.env;
+import Link from 'next/link';
+import Image from 'next/image';
+import logo from 'public/logo/logo.svg';
 
-export default async function Footer() {
+export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const copyrightDate = currentYear;
-  const copyrightName = COMPANY_NAME || SITE_NAME || '';
 
   return (
-    <footer className="mt-12 border-t border-gray-200 text-sm text-gray-400">
-      <div className="py-6 text-sm">
-        <div className="mx-auto flex w-full flex-col items-center gap-1 px-4 md:flex-row md:gap-0 md:px-8 lg:px-16">
-          <p>
-            &copy; {copyrightDate} <span className="font-bold">{copyrightName}</span>
-            {copyrightName.length && !copyrightName.endsWith('.') ? '.' : ''} All rights reserved.
-          </p>
-          <hr className="mx-4 hidden h-4 w-[1px] border-l border-neutral-400 md:inline-block" />
-          <p>
-            Created by{' '}
-            <span className="hover:text-foreground font-bold transition-colors duration-300 ease-in-out">
-              GeneratedByHumans
-            </span>
-          </p>
+    <footer className="bg-black text-gray-400 py-10">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+          {/* Left section */}
+          <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="text-center md:text-left">
+              <Link href="/contact" className="hover:text-white transition-colors block">
+                Email: zwires.dhmiourgies@gmail.com
+              </Link>
+              <address className="not-italic mt-2">
+                Klapanara 4, Drapetsona
+                <br />
+                18648, Pireas
+              </address>
+            </div>
+            <div className="hidden md:block border-l border-gray-600 h-10 mx-4"></div>
+            <div className="text-center md:text-left">
+              <Link href="/privacy-policy" className="hover:text-white transition-colors block">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
+
+          {/* Center section */}
+          <div className="flex flex-col items-center">
+            <Link href="/" prefetch={true}>
+              <Image src={logo} width={60} height={70} alt="logo" />
+            </Link>
+            <p className="text-center mt-2">© {currentYear} Zoe Hart. All rights reserved.</p>
+          </div>
+
+          {/* Right section */}
+          <div className="flex flex-col md:flex-row items-center gap-6 text-center md:text-left">
+            <div>
+              <Link href="https://instagram.com" className="hover:text-white transition-colors block">
+                Instagram
+              </Link>
+              <Link href="https://tiktok.com" className="hover:text-white transition-colors block">
+                TikTok
+              </Link>
+              <Link href="https://pinterest.com" className="hover:text-white transition-colors block">
+                Pinterest
+              </Link>
+              <Link href="https://facebook.com" className="hover:text-white transition-colors block">
+                Facebook
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </footer>
