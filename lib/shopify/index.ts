@@ -1,5 +1,5 @@
 "use server";
-import { HIDDEN_PRODUCT_TAG, SHOPIFY_GRAPHQL_API_ENDPOINT, TAGS } from 'lib/constants';
+import { HIDDEN_PRODUCT_TAG, SHOPIFY_ADMIN_GRAPHQL_API_ENDPOINT, SHOPIFY_GRAPHQL_API_ENDPOINT, TAGS } from 'lib/constants';
 import { isShopifyError } from 'lib/type-guards';
 import { ensureStartsWith } from 'lib/utils';
 import { revalidateTag } from 'next/cache';
@@ -24,11 +24,13 @@ import {
   getProductRecommendationsQuery,
   getProductsQuery
 } from './queries/product';
+import { slideImagesQuery } from './queries/slideImages';
 import {
   Cart,
   Collection,
   Connection,
   Image,
+  MediaImageNode,
   Menu,
   Page,
   Product,
@@ -40,6 +42,7 @@ import {
   ShopifyCollectionProductsOperation,
   ShopifyCollectionsOperation,
   ShopifyCreateCartOperation,
+  ShopifyMediaImagesResponse,
   ShopifyMenuOperation,
   ShopifyPageOperation,
   ShopifyPagesOperation,
@@ -54,8 +57,11 @@ import {
 const domain = process.env.SHOPIFY_STORE_DOMAIN
   ? ensureStartsWith(process.env.SHOPIFY_STORE_DOMAIN, 'https://')
   : '';
-const endpoint = `${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
-const key = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
+
+  const storefrontEndpoint = `${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
+  const adminEndpoint = `${domain}${SHOPIFY_ADMIN_GRAPHQL_API_ENDPOINT}`;
+  const storefrontKey = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
+  const adminKey = process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN!;
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
@@ -64,21 +70,23 @@ export async function shopifyFetch<T>({
   headers,
   query,
   tags,
-  variables
+  variables,
+  admin = false,
 }: {
   cache?: RequestCache;
   headers?: HeadersInit;
   query: string;
   tags?: string[];
   variables?: ExtractVariables<T>;
+  admin?: boolean;
 }): Promise<{ status: number; body: T } | never> {
   try {
-    const result = await fetch(endpoint, {
+    const result = await fetch(admin ? adminEndpoint : storefrontEndpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': key,
-        ...headers
+        ...(admin ? { 'X-Shopify-Access-Token': adminKey } : { 'X-Shopify-Storefront-Access-Token': storefrontKey }),
+        ...headers,
       },
       body: JSON.stringify({
         ...(query && { query }),
@@ -423,8 +431,6 @@ export async function getProducts({
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
 }
 
-
-
 export async function getTrendingProducts({
   sortKey = 'BEST_SELLING',
   reverse = false,
@@ -484,4 +490,52 @@ export async function revalidate(req: NextRequest): Promise<NextResponse> {
   }
 
   return NextResponse.json({ status: 200, revalidated: true, now: Date.now() });
+}
+
+export async function getFilteredMediaImages(): Promise<MediaImageNode[]> {
+  const maxRelevantImages = 50;
+
+  const fetchMediaImages = async (after: string | null = null) => {
+    const { body } = await shopifyFetch<ShopifyMediaImagesResponse>({
+      query: slideImagesQuery,
+      admin: true,
+    });
+
+    if (!body?.data?.files?.edges?.length) {
+      return { mediaImages: [], hasNextPage: false, endCursor: null };
+    }
+
+    const edges = body.data.files.edges;
+    const mediaImages = edges.map((edge) => edge.node);
+    const endCursor = edges[edges.length - 1]?.cursor || null;
+
+    return {
+      mediaImages,
+      hasNextPage: body.data.files.pageInfo.hasNextPage,
+      endCursor,
+    };
+  };
+
+  const filterRelevantImages = (images: MediaImageNode[]) => {
+    return images.filter((image) => image.image.originalSrc.includes('slide'));
+  };
+
+  const fetchAndFilterImages = async () => {
+    let filteredImages: MediaImageNode[] = [];
+    let hasNextPage = true;
+    let endCursor: string | null = null;
+
+    while (hasNextPage && filteredImages.length < maxRelevantImages) {
+      const { mediaImages, hasNextPage: nextPage, endCursor: cursor } = await fetchMediaImages(endCursor);
+
+      filteredImages = [...filteredImages, ...filterRelevantImages(mediaImages)];
+
+      hasNextPage = nextPage;
+      endCursor = cursor;
+    }
+
+    return filteredImages;
+  };
+
+  return fetchAndFilterImages();
 }
