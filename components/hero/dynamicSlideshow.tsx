@@ -1,31 +1,13 @@
-"use client";
-
-import { useEffect, useState } from 'react';
+import { getFilteredMediaImages } from 'lib/shopify';
 import Slideshow from './slideshow';
 
-export default function DynamicSlideshow() {
-  const [slides, setSlides] = useState<{ image: string; title: string }[]>([]);
+export default async function DynamicSlideshow() {
+  const slidesData = await getFilteredMediaImages();
 
-  useEffect(() => {
-    const fetchSlides = async () => {
-      try {
-        const response = await fetch('/api/files');
-        const data = await response.json();
-
-        // Map the API response to the slides format
-        const mappedSlides = data.map((item: any) => ({
-          image: item.image.originalSrc,
-          title: item.alt || 'Slide Image'
-        }));
-
-        setSlides(mappedSlides);
-      } catch (error) {
-        console.error('Error fetching slides:', error);
-      }
-    };
-
-    fetchSlides();
-  }, []);
+  const slides = slidesData.map((item) => ({
+    image: item.image.originalSrc,
+    title: item.alt || 'Slide Image',
+  }));
 
   return <Slideshow slides={slides} />;
 }

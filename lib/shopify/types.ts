@@ -270,3 +270,32 @@ export type ShopifyProductsOperation = {
     sortKey?: string;
   };
 };
+
+export interface MediaImageNode {
+  id: string;
+  createdAt: string;
+  alt?: string;
+  image: {
+    originalSrc: string;
+    width: number;
+    height: number;
+  };
+}
+
+interface MediaImageEdge {
+  node: MediaImageNode;
+  cursor: string;
+}
+
+interface MediaImageConnection {
+  edges: MediaImageEdge[];
+  pageInfo: {
+    hasNextPage: boolean;
+  };
+}
+
+export interface ShopifyMediaImagesResponse {
+  data: {
+    files: MediaImageConnection;
+  };
+}
