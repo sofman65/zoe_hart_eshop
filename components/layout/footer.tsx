@@ -13,7 +13,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="text-center md:text-left">
               <Link href="/contact" className="hover:text-white transition-colors block">
-                Email: zwires.dhmiourgies@gmail.com
+                zwires.dhmiourgies@gmail.com
               </Link>
               <address className="not-italic mt-2">
                 Klapanara 4, Drapetsona
