@@ -21,7 +21,7 @@ export default function Footer() {
                 18648, Pireas
               </address>
             </div>
-            <div className="hidden md:block border-l border-gray-600 h-10 mx-4"></div>
+            <div className="hidden md:block border-l border-gray-600 h-10"></div>
             <div className="text-center md:text-left">
               <Link href="/privacy-policy" className="hover:text-white transition-colors block">
                 Privacy Policy

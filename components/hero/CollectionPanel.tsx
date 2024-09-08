@@ -12,7 +12,7 @@ const CollectionPanel = () => {
 
 
     return (
-        <div className="flex flex-wrap justify-between">
+        <div className="flex flex-wrap justify-between ">
             {collections.map((collection, index) => (
                 <Link className="relative w-full md:w-1/4 p-2 flex-shrink-0 min-h-[400px]" href={collection.link} key={index}>
 

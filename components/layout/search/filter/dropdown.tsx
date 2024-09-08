@@ -2,7 +2,6 @@
 
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import type { ListItem } from '.';
 import { FilterItem } from './item';
@@ -42,9 +41,9 @@ export default function FilterItemDropdown({ list }: { list: ListItem[] }) {
         onClick={() => {
           setOpenSelect(!openSelect);
         }}
-        className="flex w-full items-center justify-between rounded border border-black/30 px-4 py-2 text-sm dark:border-white/30"
+        className="flex w-full items-center justify-between rounded border border-gray-300 px-4 py-2 text-sm bg-white cursor-pointer"
       >
-        <div>{active}</div>
+        <div>{active || "Select Option"}</div>
         <ChevronDownIcon className="h-4" />
       </div>
       {openSelect && (
@@ -52,7 +51,7 @@ export default function FilterItemDropdown({ list }: { list: ListItem[] }) {
           onClick={() => {
             setOpenSelect(false);
           }}
-          className="absolute z-40 w-full rounded-b-md bg-white p-4 shadow-md dark:bg-black"
+          className="absolute z-40 w-full rounded-b-md bg-white p-4 shadow-md"
         >
           {list.map((item: ListItem, i) => (
             <FilterItem key={i} item={item} />

@@ -54,3 +54,16 @@ export const getCollectionProductsQuery = /* GraphQL */ `
   }
   ${productFragment}
 `;
+
+export const getCollectionsForDropdownQuery = /* GraphQL */ `
+  query getCollectionsForDropdown {
+    collections(first: 100, sortKey: TITLE) {
+      edges {
+        node {
+          handle
+          title
+        }
+      }
+    }
+  }
+`;

@@ -58,10 +58,10 @@ const domain = process.env.SHOPIFY_STORE_DOMAIN
   ? ensureStartsWith(process.env.SHOPIFY_STORE_DOMAIN, 'https://')
   : '';
 
-  const storefrontEndpoint = `${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
-  const adminEndpoint = `${domain}${SHOPIFY_ADMIN_GRAPHQL_API_ENDPOINT}`;
-  const storefrontKey = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
-  const adminKey = process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN!;
+const storefrontEndpoint = `${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
+const adminEndpoint = `${domain}${SHOPIFY_ADMIN_GRAPHQL_API_ENDPOINT}`;
+const storefrontKey = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
+const adminKey = process.env.SHOPIFY_ADMIN_API_ACCESS_TOKEN!;
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
@@ -359,9 +359,13 @@ export async function getMenu(handle: string): Promise<Menu[]> {
   });
 
   return (
-    res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
+    res.body?.data?.menu?.items.map((item: { title: string; url: string; items?: { title: string; url: string }[] }) => ({
       title: item.title,
-      path: item.url.replace(domain, '/').replace('/collections', '/search').replace('/pages', '')
+      path: item.url.replace(domain, '/').replace('/collections', '/search').replace('/pages', ''),
+      items: item.items?.map(subItem => ({
+        title: subItem.title,
+        path: subItem.url.replace(domain, '/').replace('/collections', '/search').replace('/pages', '')
+      }))
     })) || []
   );
 }
